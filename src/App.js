@@ -1,23 +1,40 @@
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
 import './App.css';
+import ImageCard from './components/ImageCard';
+import ImageSearch from './components/ImageSearch';
 
 function App() {
+  const [images, setImages] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [term, setTerm] = useState('')
+
+  useEffect(() => {
+    fetch(`https://pixabay.com/api/?key=${process.env.REACT_APP_PIXABAY_API_KEY}&q=${term}&image_type=photo}`)
+    .then(res => res.json())
+    .then(data => {
+      setImages(data.hits)
+      setIsLoading(false)
+    })
+    .catch(err => console.log(err))
+  })
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container app">
+
+    <ImageSearch searchText={(text) => setTerm(text)} />
+    
+    {!isLoading && images.length === 0 && <h1 style={{fontSize:"40px",
+    textAlign:'center', margin: '0 auto', marginTop:"32px"
+  }}>Loading...</h1>}
+
+    {isLoading ? <h1  style={{fontSize:"50px",
+    textAlign:'center', margin: '0 auto', marginTop:"32px"
+  }}>Loading...</h1>:<div className='app-grid'>
+    {images.map(image => (
+    <ImageCard key={image.id} image={image} />
+    ))}
+    </div>}
+      
     </div>
   );
 }
